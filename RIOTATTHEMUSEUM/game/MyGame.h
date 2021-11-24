@@ -13,7 +13,7 @@ class CMyGame : public CGame
 	std::_gfc_std_ext<std::list<CEnemy*>> enemies;
 	CSoundPlayer whistle;
 	CSpriteList walls;
-
+	
 public:
 	CMyGame(void);
 	~CMyGame(void);

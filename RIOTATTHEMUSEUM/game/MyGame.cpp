@@ -24,7 +24,6 @@ void CMyGame::OnUpdate()
 	for (CSprite* pSprite : walls) pSprite->Update(t);
 
 	bool bRun = IsKeyDown(SDLK_w);
-	bool bTiptoe = IsKeyDown(SDLK_e);
 	if (IsKeyDown(SDLK_UP)) player.Input(CPlayer::UP, bRun);
 	else if (IsKeyDown(SDLK_DOWN)) player.Input(CPlayer::DOWN, bRun);
 	else if (IsKeyDown(SDLK_LEFT)) player.Input(CPlayer::LEFT, bRun);
@@ -37,37 +36,10 @@ void CMyGame::OnUpdate()
 		//boolean triggering enemies
 	}
 
-	float stamina = 0;
-	for (CEnemy* pSpider : enemies)
-	{
-		stamina += pSpider->GetHealth();
 
-		pSpider->SetEnemyPosition(player.GetPosition());
-
-		if (Distance(pSpider->GetPosition(), player.GetPosition()) <= 64)
-		{
-			if (pSpider->GetState() == CEnemy::SEEK)
-				player.OnAttacked();
-		}
-	}
-
-	cout << "X: " << player.GetX() << " Y: " << player.GetY() << endl;
+	//cout << "X: " << player.GetX() << " Y: " << player.GetY() << endl;
 
 	player.Update(t);
-
-	for (CEnemy* pEnemy : enemies)
-	{
-		for (CSprite* pWall : walls)
-		{
-			if (pEnemy->HitTest(pWall))
-			{
-				cout << "HITTEST" << endl;
-				pEnemy->ChangeState(CEnemy::STATE::IDLE);
-				pEnemy->SetVelocity(-pEnemy->GetVelocity());
-				
-			}
-		}
-	}
 
 	for (CSprite* pWall : walls) 
 	{
@@ -89,7 +61,6 @@ void CMyGame::OnDraw(CGraphics* g)
 {
 	// TODO: add drawing code here
 	CVector scroll = CVector(400, 300) - player.GetPos();
-
 	// minimum and maximum values for the scroll - at the edges of the playfield
 	if (scroll.m_x < -1280) scroll.m_x = -1280;
 	if (scroll.m_y < -720) scroll.m_y = -720;
@@ -149,15 +120,13 @@ void CMyGame::OnStartGame()
 {
 	enemies.delete_all();
 
-	enemies.push_back(new CEnemy(1720, 155, "enemy.bmp", 0));
-	enemies.push_back(new CEnemy(2250, 590, "enemy.bmp", 0));
-	enemies.push_back(new CEnemy(715, 245, "enemy.bmp", 0));
-	enemies.push_back(new CEnemy(940, 1220, "enemy.bmp", 0));
-	enemies.push_back(new CEnemy(1650, 1015, "enemy.bmp", 0));
 
-	/*enemies.push_back(new CEnemy(640, 40, "enemy.bmp", &walls, 0));
-	enemies.push_back(new CEnemy(80, 192, "enemy.bmp", &walls, 0));
-	enemies.push_back(new CEnemy(1200, 576, "enemy.bmp", &walls, 0));*/
+	//enemies.push_back(new CEnemy(1720, 155, "enemy.bmp", &walls, 0));
+	enemies.push_back(new CEnemy(2250, 590, "enemy.bmp", &walls, 0));
+	//enemies.push_back(new CEnemy(715, 245, "enemy.bmp", &walls, 0));
+	//enemies.push_back(new CEnemy(940, 1220, "enemy.bmp", &walls, 0));
+	//enemies.push_back(new CEnemy(1650, 1015, "enemy.bmp", &walls, 0));
+
 }
 
 // called when a new level started - first call for nLevel = 1
@@ -254,4 +223,5 @@ void CMyGame::OnMButtonDown(Uint16 x,Uint16 y)
 
 void CMyGame::OnMButtonUp(Uint16 x,Uint16 y)
 {
+
 }
