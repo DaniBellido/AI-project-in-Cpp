@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Enemy.h"
+#include "MyGame.h"
+#include "Player.h"
 
 
 CEnemy::CEnemy(Sint16 x, Sint16 y, char* pFileBitmap, CSpriteList* pWalls, Uint32 time) : CSprite(x, y, 0, 0, time)
@@ -23,6 +25,7 @@ bool Intersection(CVector a, CVector b, CVector c, CVector d, float& k1, float& 
 {
 	CVector v1 = b - a;
 	CVector v2 = d - c;
+	//CVector con = c - a;
 	CVector con = c - a;
 	float det = v1.m_x * v2.m_y - v1.m_y * v2.m_x;
 	if (det != 0)
@@ -46,12 +49,12 @@ bool Intersection(CVector a, CVector b, CVector c, CVector d)
 
 void CEnemy::OnDraw(CGraphics* g) 
 {
-	g->DrawLine(GetPosition(), playerPosition, 20, CColor::LightBlue());
+
 }
 
 void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 {
-
+	
 	// State-dependent actions
 	switch (state)
 	{
@@ -59,42 +62,66 @@ void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 		if (stamina < 100) stamina += 0.5f;
 		break;
 	case PATROL:
-	    
-		for (CSprite* pWall : * CEnemy::pWalls)
-		{
-			if (HitTest(pWall))
-			{
-				cout << "HITTEST" << endl;
-				ChangeState(IDLE);
-				SetRotation(-GetRotation());
-				SetVelocity(-GetVelocity());
-				
-			}
-		}
-		//while patrolling, the autonomous agent checks if there is any collision with any wall/obstacle
-		for (CSprite* pWall : *CEnemy::pWalls) 
-		{
-			if (Intersection(GetPosition(), playerPosition,
-				CVector(pWall->GetLeft(), pWall->GetTop()),		// top-left vertex
-				CVector(pWall->GetRight(), pWall->GetBottom())))		// bottom-right vertex
-				NULL;
-
-			if (Intersection(GetPosition(), playerPosition,
-				CVector(pWall->GetLeft(), pWall->GetBottom()),		// bottom-left vertex
-				CVector(pWall->GetRight(), pWall->GetTop())))		// top-right vertex
-				NULL;
-
-			if (NULL)
-				break;
-		}
-		
+	{
 		if (rand() % 60 == 0)
 			SetDirection(GetDirection() + (float)(rand() % 180 - 90));
 		stamina -= 0.01f;
 		// take a random turn at a random frame, on average once every 60 frames
+
+		bObstacle = false;
+
+		for (CSprite* pWall : *CEnemy::pWalls)
+		{
+
+
+			if (HitTest(pWall))
+			{
+				//cout << "HITTEST" << endl;
+				ChangeState(IDLE);
+				SetRotation(-GetRotation());
+				SetVelocity(-GetVelocity());
+
+			}
+		}
+		//while patrolling, the autonomous agent checks if there is any collision with any wall/obstacle
+
+		for (CSprite* pWall : *CEnemy::pWalls)
+		{
+			if (Intersection(GetPosition(), playerPosition,
+				CVector(pWall->GetLeft(), pWall->GetTop()),		// top-left vertex
+				CVector(pWall->GetRight(), pWall->GetBottom()))) // bottom-right vertex
+			{
+				bObstacle = true;
+				cout << bObstacle << endl;
+			}
+				
+
+			if (Intersection(GetPosition(), playerPosition,
+				CVector(pWall->GetLeft(), pWall->GetBottom()),		// bottom-left vertex
+				CVector(pWall->GetRight(), pWall->GetTop())))		// top-right vertex
+				bObstacle = true;
+		}
+
+		if (bObstacle == false)
+		{
+			cout << "Player Spotted" << endl;
+			ChangeState(CHASE);
+			break;
+		}
+		else
+		{
+			cout << "NOT FOUND" << endl;
+		}
+			if (bObstacle)
+				break;			
+
+		
 		break;
+	}
 	case CHASE: 
 
+		cout << "Enemy is chasing" << endl;
+		SetDirection(playerPosition);
 	
 		stamina -= 0.2f;
 		break;

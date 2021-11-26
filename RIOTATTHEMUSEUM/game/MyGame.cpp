@@ -59,6 +59,8 @@ void DrawHealth(CGraphics* g, CVector pos, float w, float h, float health)
 
 void CMyGame::OnDraw(CGraphics* g)
 {
+
+	
 	// TODO: add drawing code here
 	CVector scroll = CVector(400, 300) - player.GetPos();
 	// minimum and maximum values for the scroll - at the edges of the playfield
@@ -81,6 +83,8 @@ void CMyGame::OnDraw(CGraphics* g)
 	{
 		pEnemy->Draw(g);
 		DrawHealth(g, pEnemy->GetPosition() + CVector(-32, 32), 20, 4, pEnemy->GetHealth());
+
+		g->DrawLine(pEnemy->GetPosition(), player.GetPosition(), 4, CColor::LightBlue());
 	}
 
 	DrawHealth(g, player.GetPosition() + CVector(-32, 32), 20, 4, player.GetHealth());

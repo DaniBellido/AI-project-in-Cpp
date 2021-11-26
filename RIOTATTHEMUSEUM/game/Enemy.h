@@ -10,7 +10,8 @@ public:
 	float CHASE_SPEED = 100;
 	CVector playerPosition;
 	CSpriteList* pWalls;
-	bool lineOfSight = false;
+	//CPlayer* pPlayer;
+	bool bObstacle = false;
 private:
 	STATE state;
 	
