@@ -36,18 +36,25 @@ void CMyGame::OnUpdate()
 		//boolean triggering enemies
 	}
 
-
+	
 	//cout << "X: " << player.GetX() << " Y: " << player.GetY() << endl;
 
 	player.Update(t);
-
+	
 	for (CSprite* pWall : walls) 
 	{
 		if (player.HitTest(pWall)) player.SetVelocity(0,0);
 	}
 
 	for (CEnemy* pEnemy : enemies)
+	{
+		if (player.HitTest(pEnemy)) 
+		{
+			GameOver();
+		}
+		pEnemy->SetPlayerPosition(player.GetPosition());
 		pEnemy->Update(t);
+	}
 }
 
 void DrawHealth(CGraphics* g, CVector pos, float w, float h, float health)
@@ -84,7 +91,8 @@ void CMyGame::OnDraw(CGraphics* g)
 		pEnemy->Draw(g);
 		DrawHealth(g, pEnemy->GetPosition() + CVector(-32, 32), 20, 4, pEnemy->GetHealth());
 
-		g->DrawLine(pEnemy->GetPosition(), player.GetPosition(), 4, CColor::LightBlue());
+		//line of sight graph
+		//g->DrawLine(pEnemy->GetPosition(), player.GetPosition(), 4, CColor::LightBlue());
 	}
 
 	DrawHealth(g, player.GetPosition() + CVector(-32, 32), 20, 4, player.GetHealth());
@@ -123,13 +131,14 @@ void CMyGame::OnDisplayMenu()
 void CMyGame::OnStartGame()
 {
 	enemies.delete_all();
+	music.Stop();
+	music.Play("VR.wav");
 
-
-	//enemies.push_back(new CEnemy(1720, 155, "enemy.bmp", &walls, 0));
+	enemies.push_back(new CEnemy(1720, 155, "enemy.bmp", &walls, 0));
 	enemies.push_back(new CEnemy(2250, 590, "enemy.bmp", &walls, 0));
-	//enemies.push_back(new CEnemy(715, 245, "enemy.bmp", &walls, 0));
-	//enemies.push_back(new CEnemy(940, 1220, "enemy.bmp", &walls, 0));
-	//enemies.push_back(new CEnemy(1650, 1015, "enemy.bmp", &walls, 0));
+	enemies.push_back(new CEnemy(715, 245, "enemy.bmp", &walls, 0));
+	enemies.push_back(new CEnemy(940, 1220, "enemy.bmp", &walls, 0));
+	enemies.push_back(new CEnemy(1650, 1015, "enemy.bmp", &walls, 0));
 
 }
 
@@ -173,6 +182,7 @@ void CMyGame::OnStartLevel(Sint16 nLevel)
 // called when the game is over
 void CMyGame::OnGameOver()
 {
+	IsGameOver();
 }
 
 // one time termination code

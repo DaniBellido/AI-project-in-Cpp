@@ -29,7 +29,20 @@ void CPlayer::OnAttacked()
 void CPlayer::OnUpdate(Uint32 time, Uint32 deltaTime)
 {
 	CSprite::OnUpdate(time, deltaTime);
+	if (GetState() == RUN) 
+	{
+		health -= 0.2f;
+	}
 
+	if (GetState() == WALK && health <=100)
+	{
+		health += 0.2f;
+	}
+
+	if (GetState() == IDLE && health <= 100)
+	{
+		health += 0.5f;
+	}
 
 }
 

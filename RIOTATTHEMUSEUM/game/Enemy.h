@@ -1,5 +1,4 @@
 #pragma once
-//#include "MyGame.h" DO NOT INCLUDE -> ERROR
 
 class CEnemy : public CSprite
 {
@@ -10,12 +9,11 @@ public:
 	float CHASE_SPEED = 100;
 	CVector playerPosition;
 	CSpriteList* pWalls;
-	//CPlayer* pPlayer;
 	bool bObstacle = false;
+	CSoundPlayer sAlert;
+
 private:
 	STATE state;
-	
-	
 	float stamina;
 
 	
@@ -32,8 +30,8 @@ public:
 
 	float GetHealth() { return stamina; }
 
-	void SetEnemyPosition(CVector v) { playerPosition = v; }
-	void Attacked();
+	void SetPlayerPosition(CVector v) { playerPosition = v/*; cout << *//*"Player Position Updated" << endl*/; }
+	
 };
 
 typedef std::_gfc_std_ext<std::list<CEnemy*>> CEnemyList;

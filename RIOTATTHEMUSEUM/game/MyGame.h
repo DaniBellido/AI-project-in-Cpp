@@ -12,6 +12,7 @@ class CMyGame : public CGame
 	CSprite background;
 	std::_gfc_std_ext<std::list<CEnemy*>> enemies;
 	CSoundPlayer whistle;
+	CSoundPlayer music;
 	CSpriteList walls;
 	
 public:

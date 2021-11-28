@@ -4,6 +4,7 @@
 #include "Player.h"
 
 
+
 CEnemy::CEnemy(Sint16 x, Sint16 y, char* pFileBitmap, CSpriteList* pWalls, Uint32 time) : CSprite(x, y, 0, 0, time)
 {
 
@@ -13,6 +14,7 @@ CEnemy::CEnemy(Sint16 x, Sint16 y, char* pFileBitmap, CSpriteList* pWalls, Uint3
 	state = NONE;
 	ChangeState(IDLE);
 	this->pWalls = pWalls;
+
 }
 
 
@@ -25,7 +27,6 @@ bool Intersection(CVector a, CVector b, CVector c, CVector d, float& k1, float& 
 {
 	CVector v1 = b - a;
 	CVector v2 = d - c;
-	//CVector con = c - a;
 	CVector con = c - a;
 	float det = v1.m_x * v2.m_y - v1.m_y * v2.m_x;
 	if (det != 0)
@@ -49,12 +50,11 @@ bool Intersection(CVector a, CVector b, CVector c, CVector d)
 
 void CEnemy::OnDraw(CGraphics* g) 
 {
-
 }
 
 void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 {
-	
+
 	// State-dependent actions
 	switch (state)
 	{
@@ -78,8 +78,9 @@ void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 			{
 				//cout << "HITTEST" << endl;
 				ChangeState(IDLE);
-				SetRotation(-GetRotation());
+				SetRotation(180);
 				SetVelocity(-GetVelocity());
+				Move(GetVelocity().Normalise() * 5);
 
 			}
 		}
@@ -92,7 +93,7 @@ void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 				CVector(pWall->GetRight(), pWall->GetBottom()))) // bottom-right vertex
 			{
 				bObstacle = true;
-				cout << bObstacle << endl;
+				//cout << bObstacle << endl;
 			}
 				
 
@@ -102,15 +103,17 @@ void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 				bObstacle = true;
 		}
 
-		if (bObstacle == false)
+		float enemyDistance = Distance(playerPosition, GetPosition());
+		CVector v = playerPosition - GetPosition();
+
+		//cout << sin(Dot(Normalise(v), Normalise(GetVelocity()))) << endl;
+
+		if ((enemyDistance < 600) && bObstacle == false && (sin(Dot(Normalise(v), Normalise(GetVelocity())) >= 0.5)))
 		{
-			cout << "Player Spotted" << endl;
+			sAlert.Play("enemyAlert.wav");
 			ChangeState(CHASE);
+			//cout << "Player Spotted" << endl;
 			break;
-		}
-		else
-		{
-			cout << "NOT FOUND" << endl;
 		}
 			if (bObstacle)
 				break;			
@@ -120,10 +123,44 @@ void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 	}
 	case CHASE: 
 
-		cout << "Enemy is chasing" << endl;
-		SetDirection(playerPosition);
+	{CVector v = playerPosition - GetPosition();
+
+	cout << sin(Dot(Normalise(v), Normalise(GetVelocity()))) << endl; }
+		for (CSprite* pWall : *CEnemy::pWalls)
+		{
+			if (Intersection(GetPosition(), playerPosition,
+				CVector(pWall->GetLeft(), pWall->GetTop()),		// top-left vertex
+				CVector(pWall->GetRight(), pWall->GetBottom()))) // bottom-right vertex
+			{
+				bObstacle = true;
+				//cout << bObstacle << endl;
+			}
+
+
+			if (Intersection(GetPosition(), playerPosition,
+				CVector(pWall->GetLeft(), pWall->GetBottom()),		// bottom-left vertex
+				CVector(pWall->GetRight(), pWall->GetTop())))		// top-right vertex
+				bObstacle = true;
+		}
+
+		if (bObstacle == true)
+		{
+			ChangeState(PATROL);
+		
+			break;
+		}
+
+		if (bObstacle)
+			break;
+
 	
 		stamina -= 0.2f;
+
+		if (stamina <= 15) 
+		{
+			ChangeState(IDLE);
+		}
+
 		break;
 	case SEEK:
 		stamina -= 0.01f;
@@ -149,16 +186,20 @@ void CEnemy::OnUpdate(Uint32 time, Uint32 deltaTime)
 	{
 	case IDLE:
 		if (stamina > 95) ChangeState(PATROL);
-		if (enemyDistance < 50) ChangeState(SEEK);
 		break;
 	case PATROL:
 		if (stamina < 20) ChangeState(IDLE);
-		//LINE OF SIGTH CODE
-
 		break;
 	case CHASE:
-		if (enemyDistance < 50) ChangeState(SEEK);
-		if (enemyDistance > 250) ChangeState(IDLE);
+		if (bObstacle == false) 
+		{
+			SetDirection(playerPosition - GetPosition());
+		}
+		else 
+		{
+			ChangeState(PATROL);
+		}
+		
 		break;
 	case SEEK:
 		break;
@@ -186,7 +227,7 @@ void CEnemy::ChangeState(STATE newState)
 		SetImage("enemy");
 		break;
 	case CHASE:
-		SetDirection(playerPosition - GetPosition());
+		
 		SetSpeed(CHASE_SPEED);
 		SetImage("enemy");
 		break;
