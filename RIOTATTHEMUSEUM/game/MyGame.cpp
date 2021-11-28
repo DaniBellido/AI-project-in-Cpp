@@ -48,10 +48,7 @@ void CMyGame::OnUpdate()
 
 	for (CEnemy* pEnemy : enemies)
 	{
-		if (player.HitTest(pEnemy)) 
-		{
-			GameOver();
-		}
+		
 		pEnemy->SetPlayerPosition(player.GetPosition());
 		pEnemy->Update(t);
 	}
@@ -86,14 +83,7 @@ void CMyGame::OnDraw(CGraphics* g)
 
 	player.Draw(g);
 	
-	for (CEnemy* pEnemy : enemies)
-	{
-		pEnemy->Draw(g);
-		DrawHealth(g, pEnemy->GetPosition() + CVector(-32, 32), 20, 4, pEnemy->GetHealth());
-
-		//line of sight graph
-		//g->DrawLine(pEnemy->GetPosition(), player.GetPosition(), 4, CColor::LightBlue());
-	}
+	
 
 	DrawHealth(g, player.GetPosition() + CVector(-32, 32), 20, 4, player.GetHealth());
 	for (CEnemy* pSpider : enemies)
@@ -102,13 +92,26 @@ void CMyGame::OnDraw(CGraphics* g)
 		DrawHealth(g, pSpider->GetPosition() + CVector(-32, 32), 20, 4, pSpider->GetHealth());
 	}
 
+	for (CEnemy* pEnemy : enemies)
+	{
+		pEnemy->Draw(g);
+		DrawHealth(g, pEnemy->GetPosition() + CVector(-32, 32), 20, 4, pEnemy->GetHealth());
 
+		//line of sight graph
+		//g->DrawLine(pEnemy->GetPosition(), player.GetPosition(), 4, CColor::LightBlue());
+
+		if (player.HitTest(pEnemy))
+		{
+			*g << font(48) << color(CColor::Yellow()) << vcenter << center << "GAME OVER" << endl;
+			GameOver();
+		}
+	}
 
 	if (IsGameOver())
 		if (player.GetHealth() <= 0)
-			*g << font(48) << color(CColor::DarkRed()) << vcenter << center << "GAME OVER" << endl;
+			*g << font(48) << color(CColor::Yellow()) << vcenter << center << "GAME OVER" << endl;
 		else
-			*g << font(48) << color(CColor::DarkBlue()) << vcenter << center << "YOU ESCAPED" << endl;
+			*g << font(48) << color(CColor::Green()) << vcenter << center << "YOU ESCAPED" << endl;
 }
 
 /////////////////////////////////////////////////////
@@ -133,9 +136,9 @@ void CMyGame::OnStartGame()
 	enemies.delete_all();
 	music.Stop();
 	music.Play("VR.wav");
-
+	player.SetPosition(2255, 300);
 	enemies.push_back(new CEnemy(1720, 155, "enemy.bmp", &walls, 0));
-	enemies.push_back(new CEnemy(2250, 590, "enemy.bmp", &walls, 0));
+	//enemies.push_back(new CEnemy(2250, 590, "enemy.bmp", &walls, 0));
 	enemies.push_back(new CEnemy(715, 245, "enemy.bmp", &walls, 0));
 	enemies.push_back(new CEnemy(940, 1220, "enemy.bmp", &walls, 0));
 	enemies.push_back(new CEnemy(1650, 1015, "enemy.bmp", &walls, 0));
@@ -182,7 +185,11 @@ void CMyGame::OnStartLevel(Sint16 nLevel)
 // called when the game is over
 void CMyGame::OnGameOver()
 {
-	IsGameOver();
+	if (IsKeyDown(SDLK_F2)) 
+	{
+		OnStartGame();
+	}
+
 }
 
 // one time termination code
